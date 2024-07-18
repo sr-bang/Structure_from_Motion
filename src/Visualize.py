@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-
+# Function to show the matches between two images
 def show_matches(image_1, image_2, pts1, pts2, color, file_name):
 
     concat = np.concatenate((image_1, image_2), axis=1)
@@ -25,7 +25,7 @@ def show_matches(image_1, image_2, pts1, pts2, color, file_name):
     cv2.destroyAllWindows()
     return concat
 
-
+# Function to show the matches between two images
 def makeImageSizeSame(imgs):
     images = imgs.copy()
     sizes = []

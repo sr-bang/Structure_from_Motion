@@ -5,12 +5,17 @@ import time
 from scipy.optimize import least_squares
 from NonlinearPnP import *
 
-##########################################################################################
+
 ########################### Helper Functions for BA ######################################
-##########################################################################################
 
-
+# To get the euler angles from the rotation matrix
 def getObservationsIndexAndVizMat(X_found, filtered_feature_flag, nCam):
+    """
+    X_found: 1D array of 3D points
+    filtered_feature_flag: 2D array of 2D points
+    nCam: number of cameras
+    return : X_index, visiblity_matrix
+    """
     # find the 3d points such that they are visible in either of the cameras < nCam
     bin_temp = np.zeros((filtered_feature_flag.shape[0]), dtype=int)
     for n in range(nCam + 1):
@@ -26,8 +31,15 @@ def getObservationsIndexAndVizMat(X_found, filtered_feature_flag, nCam):
     o, c = visiblity_matrix.shape
     return X_index, visiblity_matrix[:, 1:c]
 
-
+# To get the euler angles from the rotation matrix
 def get2DPoints(X_index, visiblity_matrix, feature_x, feature_y):
+    """
+    X_index: 2D array of 3D points
+    visiblity_matrix: 2D array of 2D points
+    feature_x: 2D array of 2D points
+    feature_y: 2D array of 2D points
+    return : 2D points
+    """
     pts2D = []
     visible_feature_x = feature_x[X_index]
     visible_feature_y = feature_y[X_index]
@@ -41,7 +53,11 @@ def get2DPoints(X_index, visiblity_matrix, feature_x, feature_y):
     return np.array(pts2D).reshape(-1, 2)
 
 
+# To get the indicises of the camera and the 3D points
 def getCameraPointIndices(visiblity_matrix):
+    """
+    return : camera_indices, point_indices
+    """
     camera_indices = []
     point_indices = []
     h, w = visiblity_matrix.shape
@@ -55,12 +71,14 @@ def getCameraPointIndices(visiblity_matrix):
 
 
 ##########################################################################################
-##########################################################################################
-##########################################################################################
 
+# To create the Sparsity matrix
 def bundle_adjustment_sparsity(X_found, filtered_feature_flag, nCam):
     """
-    To create the Sparsity matrix
+    X_found: 3D points
+    filtered_feature_flag: 2D points
+    nCam: number of cameras
+    return : A matrix
     """
     number_of_cam = nCam + 1
     X_index, visiblity_matrix = getObservationsIndexAndVizMat(
@@ -143,8 +161,20 @@ def fun(x0, nCam, n_points, camera_indices, point_indices, points_2d, K):
 
     return error_vec
 
-
+# To run the Bundle Adjustment
 def BundleAdjustment(X_all, X_found, feature_x, feature_y, filtered_feature_flag, R_set_, C_set_, K, nCam):
+    """
+    X_all: 3D points in the world frame
+    X_found: 3D points in the camera frame
+    feature_x: 2D points in the camera frame
+    feature_y: 2D points in the camera frame
+    filtered_feature_flag: 2D points in the camera frame
+    R_set_: Rotation matrix
+    C_set_: Camera center
+    K: Camera matrix
+    nCam: number of cameras
+    return : optimized_R_set, optimized_C_set, optimized_X_all
+    """
 
     X_index, visiblity_matrix = getObservationsIndexAndVizMat(
         X_found, filtered_feature_flag, nCam)

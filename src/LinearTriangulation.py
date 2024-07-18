@@ -1,14 +1,23 @@
 import numpy as np
 
-
+# Linear Triangulation method
 def LinearTriangulation(K, C1, R1, C2, R2, x1, x2):
-
+    """
+    K: Camera matrix
+    C1: Camera center 1
+    R1: Rotation matrix 1
+    C2: Camera center 2
+    R2: Rotation matrix 2
+    x1: Points in the first image
+    x2: Points in the second image
+    return : 3D points
+    """
     I = np.identity(3)
     C1 = np.reshape(C1, (3, 1))
     C2 = np.reshape(C2, (3, 1))
 
-    P1 = np.dot(K, np.dot(R1, np.hstack((I, -C1))))
-    P2 = np.dot(K, np.dot(R2, np.hstack((I, -C2))))
+    P1 = np.dot(K, np.dot(R1, np.hstack((I, -C1)))) # Projection matrix of camera 1
+    P2 = np.dot(K, np.dot(R2, np.hstack((I, -C2)))) # Projection matrix of camera 2
 
     p1T = P1[0, :].reshape(1, 4)
     p2T = P1[1, :].reshape(1, 4)
@@ -18,6 +27,7 @@ def LinearTriangulation(K, C1, R1, C2, R2, x1, x2):
     p_dash_2T = P2[1, :].reshape(1, 4)
     p_dash_3T = P2[2, :].reshape(1, 4)
 
+    # Linear triangulation
     all_X = []
     for i in range(x1.shape[0]):
         x = x1[i, 0]
@@ -31,7 +41,6 @@ def LinearTriangulation(K, C1, R1, C2, R2, x1, x2):
         A.append(p_dash_1T - (x_dash * p_dash_3T))
 
         A = np.array(A).reshape(4, 4)
-
         _, _, vt = np.linalg.svd(A)
         v = vt.T
         x = v[:, -1]

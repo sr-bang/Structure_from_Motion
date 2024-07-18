@@ -1,7 +1,11 @@
 import numpy as np
 
-
+# Normalize the points before computing the fundamental matrix
 def normalize(uv):
+    """
+    uv: Points
+    return: Normalized points and the transformation matrix
+    """
     uv_ = np.mean(uv, axis=0)
     u_, v_ = uv_[0], uv_[1]
     u_cap, v_cap = uv[:, 0] - u_, uv[:, 1] - v_
@@ -16,10 +20,14 @@ def normalize(uv):
 
     return x_norm, T
 
-
+# Get the fundamental matrix from the points
 def get_f_mat(pts1, pts2):
+    """
+    pts1: Points in the first image
+    pts2: Points in the second image
+    return: The fundamental matrix
+    """
     normalised = True
-
     x1, x2 = pts1, pts2
 
     if x1.shape[0] > 7:
@@ -36,7 +44,7 @@ def get_f_mat(pts1, pts2):
             A[i] = np.array([x_1*x_2, x_2*y_1, x_2, y_2 *
                             x_1, y_2*y_1, y_2, x_1, y_1, 1])
 
-        U, S, VT = np.linalg.svd(A, full_matrices=True)
+        U, S, VT = np.linalg.svd(A, full_matrices=True) 
         F = VT.T[:, -1]
         F = F.reshape(3, 3)
 

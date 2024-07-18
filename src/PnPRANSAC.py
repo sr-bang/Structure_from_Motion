@@ -1,8 +1,11 @@
 from NonlinearPnP import PnP
 import numpy as np
 from NonlinearTriangulation import ProjectionMatrix, homo
+from NonlinearPnP import PnP
+from NonlinearTriangulation import ProjectionMatrix, homo
+import numpy as np
 
-
+# To calculate error
 def PnPError(x, X, R, C, K):
     u, v = x
     # make X it a column of homogenous vector
@@ -20,9 +23,16 @@ def PnPError(x, X, R, C, K):
 #     e = np.sqrt(np.square(u - u_proj) + np.square(v - v_proj))
     return e
 
-
+# To estimate camera pose from 2D-3D correspondences
 def PnPRANSAC(K, features, x3D, n_iterations=1000, error_thresh=5):
-
+    """
+    K: camera matrix
+    features: 2D image points
+    x3d: 3D world points
+    n_iterations: number of RANSAC iterations
+    error_threshold: threshold for error
+    return R_best, t_best
+    """
     inliers_thresh = 0
     chosen_indices = []
     chosen_R, chosen_t = None, None

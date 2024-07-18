@@ -2,9 +2,19 @@ import numpy as np
 import cv2
 import scipy.optimize as optimize
 
-
+# To calculate the reprojection error for the given 3D point X
 def ReprojectionError(X, pt1, pt2, R1, C1, R2, C2, K):
-
+    """
+    x: 3D point
+    pt1: 2D point in image 1
+    pt2: 2D point in image 2
+    R1: Rotation matrix of camera 1
+    C1: Camera center of camera 1
+    R2: Rotation matrix of camera 2
+    C2: Camera center of camera 2
+    K: Intrinsic matrix of the camera
+    return: reprojection error for the given 3D point
+    """
     P1 = ProjectionMatrix(R1, C1, K)
     P2 = ProjectionMatrix(R2, C2, K)
 
@@ -33,8 +43,20 @@ def ReprojectionError(X, pt1, pt2, R1, C1, R2, C2, K):
 
     return E1, E2
 
-
+# Mean of reprojection error
 def meanReprojectionError(x3D, pts1, pts2, R1, C1, R2, C2, K):
+    """
+    x3D: 3D point
+    pts1: 2D point in image 1
+    pts2: 2D point in image 2
+    R1: Rotation matrix of camera 1
+    C1: Camera center of camera 1
+    R2: Rotation matrix of camera 2
+    C2: Camera center of camera 2
+    K: Intrinsic matrix of the camera
+    return: mean reprojection error for the given 3D point
+    
+    """
     Error = []
     for pt1, pt2, X in zip(pts1, pts2, x3D):
         e1, e2 = ReprojectionError(X, pt1, pt2, R1, C1, R2, C2, K)
@@ -42,16 +64,32 @@ def meanReprojectionError(x3D, pts1, pts2, R1, C1, R2, C2, K):
 
     return np.mean(Error)
 
-
+# To calculate the projection matrix
 def ProjectionMatrix(R, C, K):
+    """
+    R: Rotation matrix
+    C: Camera center
+    K: Intrinsic matrix
+    return: Projection matrix
+    """
     C = np.reshape(C, (3, 1))
     I = np.identity(3)
     P = np.dot(K, np.dot(R, np.hstack((I, -C))))
     return P
 
-
+# To calculate the reprojection loss
 def NonLinearTriangulation(K, pts1, pts2, x3D, R1, C1, R2, C2):
-
+    """
+    K: Intrinsic matrix
+    pts1: 2D point in image 1
+    pts2: 2D point in image 2
+    x3D: 3D point
+    R1: Rotation matrix of camera 1
+    C1: Camera center of camera 1
+    R2: Rotation matrix of camera 2
+    C2: Camera center of camera 2
+    return: 3D points after optimization
+    """
     P1 = ProjectionMatrix(R1, C1, K)
     P2 = ProjectionMatrix(R2, C2, K)
     # pts1, pts2, x3D = pts1, pts2, x3D
@@ -69,10 +107,16 @@ def NonLinearTriangulation(K, pts1, pts2, x3D, R1, C1, R2, C2):
     return np.array(x3D_)
 
 
+# To calculate the reprojection loss
 def ReprojectionLoss(X, pts1, pts2, P1, P2):
-
-    # X = homo(X.reshape(1,-1)).reshape(-1,1) # make X a column of homogenous vector
-
+    """
+    X: 3D point
+    pts1: 2D point in image 1
+    pts2: 2D point in image 2
+    P1: Projection matrix of camera 1
+    P2: Projection matrix of camera 2
+    return: reprojection error for the given 3D point
+    """
     p1_1T, p1_2T, p1_3T = P1  # rows of P1
     p1_1T, p1_2T, p1_3T = p1_1T.reshape(
         1, -1), p1_2T.reshape(1, -1), p1_3T.reshape(1, -1)
@@ -96,6 +140,6 @@ def ReprojectionLoss(X, pts1, pts2, P1, P2):
     error = E1 + E2
     return error.squeeze()
 
-
+# To make the 3D point homogenous
 def homo(pts):
     return np.hstack((pts, np.ones((pts.shape[0], 1))))

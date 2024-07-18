@@ -3,17 +3,15 @@ from NonlinearTriangulation import ProjectionMatrix, homo
 from scipy.spatial.transform import Rotation
 import scipy.optimize as optimize
 
-
+# Non-Linear PnP method
 def NonLinearPnP(K, pts, x3D, R0, C0):
-    """    
-    K : Camera Matrix
-    pts1, pts2 : Point Correspondences
-    x3D :  initial 3D point 
-    R2, C2 : relative camera pose - estimated from PnP
-    Returns:
-        x3D : optimized 3D points
     """
-
+    K: Camera instrinsic matrix
+    pts: 2D points
+    x3D: 3D Points
+    R0: Rotation matrix of camera
+    C0: Camera center of camera
+    """
     Q = getQuaternion(R0)
     X0 = [Q[0], Q[1], Q[2], Q[3], C0[0], C0[1], C0[2]]
 
@@ -28,7 +26,7 @@ def NonLinearPnP(K, pts, x3D, R0, C0):
     R = getRotation(Q)
     return R, C
 
-
+# To calculate Pnp loss
 def PnPLoss(X0, x3D, pts, K):
 
     Q, C = X0[:4], X0[4:].reshape(-1, 1)
@@ -56,7 +54,7 @@ def PnPLoss(X0, x3D, pts, K):
     sumError = np.mean(np.array(Error).squeeze())
     return sumError
 
-
+# To calculate reprojection error for pnp
 def reprojectionErrorPnP(x3D, pts, K, R, C):
     P = ProjectionMatrix(R, C, K)
 
@@ -80,7 +78,7 @@ def reprojectionErrorPnP(x3D, pts, K, R, C):
     mean_error = np.mean(np.array(Error).squeeze())
     return mean_error
 
-
+# Pnp Pipelinee
 def PnP(X_set, x_set, K):
     N = X_set.shape[0]
 
@@ -125,17 +123,17 @@ def PnP(X_set, x_set, K):
 
     return R, C
 
-
+# Rotation matrix to Quaternion
 def getQuaternion(R2):
     Q = Rotation.from_matrix(R2)
     return Q.as_quat()
 
-
+# Rotation matrix to Eulrer
 def getEuler(R2):
     euler = Rotation.from_matrix(R2)
     return euler.as_rotvec()
 
-
+# Quaternion to Rotation matrix
 def getRotation(Q, type_='q'):
     if type_ == 'q':
         R = Rotation.from_quat(Q)

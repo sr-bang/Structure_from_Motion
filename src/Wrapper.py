@@ -16,28 +16,18 @@ from PnPRANSAC import PnPRANSAC
 from BundleAdjustment import *
 
 # Load intrinsic matrix from the path
-
-
 def get_int_mat(path):
-
     K = []
-
     with open(path) as file:
         text = csv.reader(file, delimiter=" ")
         for line in text:
             K.append(line)
-
-# Convert images to numpy array
     K = np.array(K, np.float_)
     return K
 
 # Load images from the path
-
-
 def read_imgs(path):
-
     imgs = []
-
     for file in glob(path + '*.png'):
         img = cv2.imread(file)
         imgs.append(img)
@@ -49,10 +39,7 @@ def read_imgs(path):
     return imgs
 
 # Load precalculated matches from the path
-
-
 def get_matches(path):
-
     feature_descriptor = []
     feature_x = []
     feature_y = []
@@ -215,7 +202,6 @@ def main():
     R_set_.append(R_chosen)
 
 # Registering other cameras
-
     for i in range(2, img_count):
 
         print('Registering Image: ', str(i+1), '......')
