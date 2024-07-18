@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def ExtractCameraPose(E):
 
     U, S, V_T = np.linalg.svd(E)
